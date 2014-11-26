@@ -1,0 +1,21 @@
+{% extends 'SyrupComponentBundle:Elasticsearch:mappingDefault.json.twig' %}
+
+{% block params %}
+            "params": {
+                "dynamic": "strict",
+                "properties": {
+                    "configurationId": {
+                        "type": "string"
+                    },
+                    "days": {
+                        "type": "integer"
+                    },
+                    "accountsLimit": {
+                        "type": "integer"
+                    },
+                    "accountsOffset": {
+                        "type": "integer"
+                    }
+                }
+            },
+{% endblock %}

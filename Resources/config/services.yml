@@ -1,4 +1,10 @@
 services:
-#    keboola_facebook_extractor_b.example:
+    ex_facebook.job_executor:
+        class: Keboola\FacebookExtractorBundle\Job\Executor
+        arguments: [@logger, %app_name%]
+   
+parameters: null
+
+#    keboola_facebook_extractor.example:
 #        class: Keboola\FacebookExtractorBundle\Example
 #        arguments: [@service_id, "plain_value", %parameter%]
