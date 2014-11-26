@@ -1,3 +1,8 @@
 keboola_facebook_extractor_homepage:
     path:     /hello/{name}
     defaults: { _controller: KeboolaFacebookExtractorBundle:Default:index }
+
+
+keboola_facebook_extractor_token:
+    path:     /token
+    defaults: { _controller: KeboolaFacebookExtractorBundle:Default:token }
