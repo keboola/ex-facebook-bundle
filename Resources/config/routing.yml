@@ -1,0 +1,3 @@
+keboola_facebook_extractor_b_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: KeboolaFacebookExtractorBundle:Default:index }
