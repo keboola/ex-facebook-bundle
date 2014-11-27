@@ -71,6 +71,10 @@ class Executor extends BaseExecutor
             return false;
         }
 
+        if (isset($jsonParams["config"])) {
+            $jsonParams["configurationId"] = $jsonParams["config"];
+        }
+
 
         $reservedTables = array('accounts');
         foreach($configBucket["items"] as $configurationId => $configInstance) if (!in_array($configurationId, $reservedTables)) {
