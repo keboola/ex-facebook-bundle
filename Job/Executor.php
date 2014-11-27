@@ -119,7 +119,7 @@ class Executor extends BaseExecutor
                 ));
 
                 if (!$this->storageApi->bucketExists($fbImport->storageApiBucket)) {
-                    $this->storageApi->createBucket('{$this->appName}-' . $configurationId, \Keboola\StorageApi\Client::STAGE_IN, "Facebook Data");
+                    $this->storageApi->createBucket($this->appName . '.' . $configurationId, \Keboola\StorageApi\Client::STAGE_IN, "Facebook Data");
                 }
                 $tokenInfo = $this->storageApi->getLogData();
 
