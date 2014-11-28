@@ -43,9 +43,13 @@ class DefaultController extends Controller
         return $this->render('KeboolaFacebookExtractorBundle:Default:token.html.twig', array("content" => $content));
     }
 
+    /**
+     * @param $text
+     * @param string $type
+     * @return string
+     */
     protected function _renderAlert($text, $type = 'success')
    	{
    		return sprintf('<div class="alert alert-%s" style="word-break: break-word">%s</div>', $type, htmlspecialchars($text));
    	}
-
 }
