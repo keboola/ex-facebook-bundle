@@ -19,8 +19,6 @@ class ApiController extends \Syrup\ComponentBundle\Controller\ApiController
         }
 
         $job->setLockName($job->getComponent() . '-' . $job->getProject()['id'] . '-' . $workerNr);
-        var_dump($job);
-        die();
         return $job;
 
    	}
