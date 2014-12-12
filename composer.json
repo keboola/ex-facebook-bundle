@@ -20,7 +20,7 @@
     "name": "keboola/facebookextractorbundle",
     "repositories": [],
     "require": {
-        "syrup/component-bundle": "~1.9.23",
+        "syrup/component-bundle": "~1.10.0",
         "keboola/csv": "~1.1.3"
     },
     "require-dev": {
