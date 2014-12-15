@@ -7,6 +7,12 @@ keboola_facebook_extractor_token:
     path:     /token
     defaults: { _controller: KeboolaFacebookExtractorBundle:Default:token }
 
-keboola_facebook_extractor_rum:
+keboola_facebook_extractor_run:
     path:     /run
     defaults: { _controller: KeboolaFacebookExtractorBundle:Api:run }
+    methods:  [POST]
+
+keboola_facebook_extractor_run_options:
+    path:     /run
+    defaults: { _controller: KeboolaFacebookExtractorBundle:Api:options }
+    methods:  [OPTIONS]
