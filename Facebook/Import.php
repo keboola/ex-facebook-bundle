@@ -10,6 +10,7 @@
 
 namespace Keboola\FacebookExtractorBundle\Facebook;
 
+use Keboola\StorageApi\Exception;
 use Monolog\Registry;
 use Syrup\ComponentBundle\Exception\UserException;
 
@@ -1194,22 +1195,26 @@ class Import
 			if (!isset($this->_sapiTableCache[$tableId]) && $this->storageApi->tableExists($tableId)) {
 				$this->_sapiTableCache[$tableId] = $this->storageApi->getTable($tableId);
 			}
-			if (isset($this->_sapiTableCache[$tableId])) {
-				$this->storageApi->writeTableAsync(
-					$tableId,
-					new \Keboola\Csv\CsvFile($csvFileName, "\t", '"', "\\"),
-					array(
-						"incremental" => true
-					));
-			} else {
-				$this->storageApi->createTableAsync(
-					$this->storageApiBucket,
-					$table,
-					new \Keboola\Csv\CsvFile($csvFileName, "\t", '"', "\\"),
-					array(
-						"primaryKey" => "ex__primary"
-					));
-				$this->_sapiTableCache[$tableId] = $this->storageApi->getTable($tableId);
+			try {
+				if (isset($this->_sapiTableCache[$tableId])) {
+					$this->storageApi->writeTableAsync(
+						$tableId,
+						new \Keboola\Csv\CsvFile($csvFileName, "\t", '"', "\\"),
+						array(
+							"incremental" => true
+						));
+				} else {
+					$this->storageApi->createTableAsync(
+						$this->storageApiBucket,
+						$table,
+						new \Keboola\Csv\CsvFile($csvFileName, "\t", '"', "\\"),
+						array(
+							"primaryKey" => "ex__primary"
+						));
+					$this->_sapiTableCache[$tableId] = $this->storageApi->getTable($tableId);
+				}
+			} catch (Exception $e) {
+				throw new UserException($e->getMessage(), $e);
 			}
 		}
 		return true;
