@@ -3,6 +3,7 @@
 namespace Keboola\FacebookExtractorBundle\Job;
 
 use Keboola\FacebookExtractorBundle\Facebook\Import;
+use Keboola\FacebookExtractorBundle\Facebook\InvalidTokenException;
 use Monolog\Logger;
 use Monolog\Registry;
 use Syrup\ComponentBundle\Exception\ApplicationException;
@@ -150,7 +151,7 @@ class Executor extends BaseExecutor
                 exec("rm -rf $tmpDir");
                 $fbImport->log("Extraction of row {$configurationId} finished", array(), $duration);
             } catch (InvalidTokenException $e) {
-                //@TODO Invalid token!!
+                throw new UserException($e->getMessage(), $e);
             } catch (\Exception $e) {
                 throw new ApplicationException($e->getMessage(), $e);
             }

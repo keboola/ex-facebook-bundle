@@ -196,8 +196,7 @@ class Api
 									// Might be a temporary problem
 									$this->_tokenErrorsCount++;
 									if ($this->_tokenErrorsCount >= self::TOKEN_ERRORS_RETRIES_COUNT) {
-										throw new \Exception('Unknown OAuth error: ' . $rawResult
-											. ' - called url: ' . $url);
+										throw new InvalidTokenException('Unknown OAuth error: ' . $rawResult);
 									}
 
 								}
