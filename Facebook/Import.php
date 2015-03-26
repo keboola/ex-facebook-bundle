@@ -970,7 +970,7 @@ class Import
 						try {
 
 							// Validate url
-							$url = Api::API_URL . $url . (strpos($url, '?') === FALSE ? '?' : '&') . 'access_token=' . $account['token'] . $apiUrlParams;
+							$url = Api::API_URL . $url . (strpos($url, '?') === FALSE ? '?' : '&') . 'access_token=' . trim($account['token']) . $apiUrlParams;
                             $uri = \Zend_Uri_Http::fromString($url);
             				if (!$uri->valid()) {
 								$this->log(sprintf('Configuration query on row %d is not valid.', $this->currentConfigRowNumber), array(
