@@ -145,13 +145,8 @@ class Import
 					continue 1;
 				}
 
-				try {
-					\NDebugger::timer('account');
-					$this->_parseQuery($account, $query, $since, $until, $this->_csvFiles[$queryNumber]["handle"]);
-				} catch (InvalidTokenException $e) {
-					$this->_invalidateAccount($account['order'], $account['id']);
-					$this->log('Invalid account \'' . $account['id'] . '\' or token', array('account' => $account['id'], 'error' => $e->getMessage()), 0, true);
-				}
+                \NDebugger::timer('account');
+                $this->_parseQuery($account, $query, $since, $until, $this->_csvFiles[$queryNumber]["handle"]);
 			}
 
 			$this->_uploadCsvFile($queryNumber, $query->table);
@@ -745,27 +740,6 @@ class Import
 		$this->storageApi->createEvent($event);
 	}
 
-	private function _invalidateAccount($order, $accountId)
-	{
-		$csvFile = $this->tmpDir . '/invalid-account-' . date('Ymd-His') . uniqid() . '.csv';
-
-		$fp = fopen($csvFile, 'w');
-		fputcsv($fp, array('order', 'id', 'valid'), "\t", '"');
-		fputcsv($fp, array($order, $accountId, 0), "\t", '"');
-		fclose($fp);
-
-		$this->storageApi->writeTableAsync(
-            $this->bucket . '.' . self::ACCOUNTS_TABLE_ID,
-			new \Keboola\Csv\CsvFile($csvFile, "\t", '"', "\\"),
-			array(
-				"incremental" => true,
-				"partial" => true
-			)
-		);
-
-		unlink($csvFile);
-	}
-
 	/**
 	 * @param $url
 	 * @param string $type
@@ -1019,7 +993,10 @@ class Import
 								'url' => $url,
 								'error' => $e->getMessage()
 							), 0, true);
-						}
+						} catch (InvalidTokenException $e) {
+                            $e->setAccount($account["id"]);
+                            throw $e;
+                        }
 					}
 					$firstLine = false;
 				}
@@ -1083,7 +1060,10 @@ class Import
 					'url' => $parsedQuery,
 					'error' => $e->getMessage()
 				), 0, true);
-			}
+			} catch (InvalidTokenException $e) {
+                $e->setAccount($account["id"]);
+                throw $e;
+            }
 
 		}
 	}

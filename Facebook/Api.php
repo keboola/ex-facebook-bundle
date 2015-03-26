@@ -6,7 +6,37 @@ use Syrup\ComponentBundle\Exception\ApplicationException;
 
 class InvalidTokenException extends \Exception
 {
+    protected $account;
+    protected $data;
 
+    public function getAccount()
+    {
+        return $this->account;
+    }
+
+    public function setAccount($account)
+    {
+        $this->account = $account;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param mixed $data
+     * @return $this
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
+        return $this;
+    }
 }
 
 class ApiErrorException extends \Exception
@@ -174,7 +204,7 @@ class Api
 									strstr($result['error']['message'], 'was migrated to page ID') // Page migrated to other ID
 								) {
 									// Permanent token problem
-									throw new InvalidTokenException($rawResult);
+									throw (new InvalidTokenException($result['error']['message']))->setData($result);
 								} elseif (
 									strstr($result['error']['message'], 'retry your request later') ||
 									strstr($result['error']['message'], 'TSocket: Could not read') ||
@@ -196,7 +226,7 @@ class Api
 									// Might be a temporary problem
 									$this->_tokenErrorsCount++;
 									if ($this->_tokenErrorsCount >= self::TOKEN_ERRORS_RETRIES_COUNT) {
-										throw new InvalidTokenException('Unknown OAuth error: ' . $rawResult);
+										throw (new InvalidTokenException('Unknown OAuth error: ' . $rawResult))->setData($result);
 									}
 
 								}

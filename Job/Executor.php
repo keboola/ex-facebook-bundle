@@ -151,7 +151,7 @@ class Executor extends BaseExecutor
                 exec("rm -rf $tmpDir");
                 $fbImport->log("Extraction of row {$configurationId} finished", array(), $duration);
             } catch (InvalidTokenException $e) {
-                throw new UserException($e->getMessage(), $e);
+                throw new UserException("Invalid account {$e->getAccount()} or token for this account: " . $e->getMessage(), $e);
             } catch (\Exception $e) {
                 throw new ApplicationException($e->getMessage(), $e);
             }
