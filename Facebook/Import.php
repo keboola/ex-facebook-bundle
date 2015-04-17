@@ -973,7 +973,7 @@ class Import
 									$this->_importInsightsPosts($account['id'], $objectId, $url, $csvHandle);
 									break;
 								case 'list':
-									$this->_importList($account['id'], $objectId, $url, $since, $until, $compositePrimaryKey, $timestampColumn, $columnsToDownload, $csvHandle);
+									$this->_importList($account['id'], $objectId, $url, $since, $until, $compositePrimaryKey, $query->timestampColumn, $columnsToDownload, $csvHandle);
 									break;
 								case 'paginated':
 									$this->_importPaginated($account['id'], $objectId, $url, $compositePrimaryKey, $columnsToDownload, $csvHandle);
