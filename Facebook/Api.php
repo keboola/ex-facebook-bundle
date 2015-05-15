@@ -231,7 +231,20 @@ class Api
 
 								}
 							} else {
-								throw new RequestErrorException($result['error']['type'] . ': ' . $result['error']['message']);
+                                $type = "";
+                                if (isset($result['error']['type'])) {
+                                    $type = $result['error']['type'];
+                                }
+                                if (isset($result['error']['message'])) {
+                                    if ($type) {
+                                        $message = $type . ": " . $result['error']['message'];
+                                    } else {
+                                        $message = $result['error']['message'];
+                                    }
+                                } else {
+                                    $message = json_encode($result);
+                                }
+								throw new RequestErrorException($message);
 							}
 						} else if (isset($result['error_msg'])) {
 							$apiError = TRUE;
