@@ -193,7 +193,9 @@ class Api
 					if ($result) {
 						if (isset($result['error'])) {
 
-							if (isset($result['error']['type']) && $result['error']['type']=='OAuthException') {
+							if (isset($result['error']['type'])
+                                && $result['error']['type']=='OAuthException'
+                                && !strstr($result['error']['message'], 'versions v2.0')) {
 								if (
 									strstr($result['error']['message'], 'Invalid OAuth access token') || // Wrong token
 									strstr($result['error']['message'], 'Session has expired') || // Token expired
