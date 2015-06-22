@@ -1012,7 +1012,11 @@ class Import
 
 				// Validate url
 				$url = Api::API_URL . $parsedQuery . (strpos($parsedQuery, '?') === FALSE ? '?' : '&') . 'access_token=' . trim($account['token']) . $apiUrlParams;
-                $uri = \Zend_Uri_Http::fromString($url);
+                try {
+                    $uri = \Zend_Uri_Http::fromString($url);
+                } catch (\Zend_Uri_Exception $e) {
+                    throw new UserException(sprintf('Configuration query on row %d is not valid: ' . $e->getMessage(), $this->currentConfigRowNumber));
+                }
 				if (!$uri->valid()) {
 					$this->log(sprintf('Configuration query on row %d is not valid.', $this->currentConfigRowNumber), array(
 						'account' => $account['id'],
