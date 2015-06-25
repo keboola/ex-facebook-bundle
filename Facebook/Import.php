@@ -10,6 +10,7 @@
 
 namespace Keboola\FacebookExtractorBundle\Facebook;
 
+use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Exception;
 use Monolog\Registry;
 use Syrup\ComponentBundle\Exception\UserException;
@@ -168,9 +169,9 @@ class Import
 	 * @param $url
 	 * @param $since
 	 * @param $until
-	 * @param $csvHandle
+	 * @param CsvFile $csvHandle
 	 */
-	private function _importInsightsPages($accountId, $objectId, $url, $since, $until, $csvHandle)
+	private function _importInsightsPages($accountId, $objectId, $url, $since, $until, CsvFile $csvHandle)
 	{
 		if ($until == 'today') {
 			$until = 'yesterday';
@@ -211,9 +212,9 @@ class Import
 	 * @param $url
 	 * @param $since
 	 * @param $until
-	 * @param $csvHandle
+	 * @param CsvFile $csvHandle
 	 */
-	private function _importInsightsPagesPivoted($accountId, $objectId, $url, $since, $until, $mapping, $csvHandle)
+	private function _importInsightsPagesPivoted($accountId, $objectId, $url, $since, $until, $mapping, CsvFile $csvHandle)
 	{
 
 		if ($until == 'today') {
@@ -255,9 +256,10 @@ class Import
 	 * @param $accountId
 	 * @param $objectId
 	 * @param $url
-	 * @param $csvHandle
+	 * @param $mapping
+	 * @param CsvFile $csvHandle
 	 */
-	private function _importInsightsPostsPivoted($accountId, $objectId, $url, $mapping, $csvHandle)
+	private function _importInsightsPostsPivoted($accountId, $objectId, $url, $mapping, CsvFile $csvHandle)
 	{
 		try {
 			$data = $this->_fbApiCall($url, "insights");
@@ -278,9 +280,9 @@ class Import
 	 * @param $accountId
 	 * @param $objectId
 	 * @param $url
-	 * @param $csvHandle
+	 * @param CsvFile $csvHandle
 	 */
-	private function _importInsightsPosts($accountId, $objectId, $url, $csvHandle)
+	private function _importInsightsPosts($accountId, $objectId, $url, CsvFile $csvHandle)
 	{
 		try {
 			$data = $this->_fbApiCall($url, "insights");
@@ -301,11 +303,11 @@ class Import
 	 * @param $data
 	 * @param $mapping
 	 * @param $endTime
-	 * @param $csvHandle
+	 * @param CsvFile $csvHandle
 	 * @throws KeboolaException
 	 * @throws Exception
 	 */
-	private function _extractInsightsData($accountId, $objectId, $data, $mapping, $endTime, $csvHandle)
+	private function _extractInsightsData($accountId, $objectId, $data, $mapping, $endTime, CsvFile $csvHandle)
 	{
 		$start = microtime(true);
 		if (isset($data['data']) && is_array($data['data'])) {
@@ -339,9 +341,8 @@ class Import
 				$output[$key] = $value;
 			}
 
-			fputcsv($csvHandle, $output, "\t", '"');
+            $csvHandle->writeRow($output);
 
-			fflush($csvHandle);
 			if (microtime(true) - $writeStart > 0.1) {
 			}
 		} else {
@@ -359,12 +360,11 @@ class Import
 	 * @param $objectId
 	 * @param $data
 	 * @param bool $lifetime
-	 * @param $csvHandle
+	 * @param CsvFile $csvHandle
 	 * @throws Exception
 	 */
-	private function _parseInsightsData($accountId, $objectId, $data, $lifetime=false, $csvHandle)
+	private function _parseInsightsData($accountId, $objectId, $data, $lifetime=false, CsvFile $csvHandle)
 	{
-		$start = microtime(true);
 		if (isset($data['data']) && is_array($data['data'])) {
 			foreach ($data['data'] as $metricRow) {
 				if (isset($metricRow['name']) && isset($metricRow['period']) && isset($metricRow['values'])
@@ -391,7 +391,7 @@ class Import
 									}
 
 									if ($lifetime) {
-										fputcsv($csvHandle, array(
+                                        $csvHandle->writeRow(array(
 											md5($accountId . $objectId . $metricRow['name'] . $endTime . $key),
 											$accountId,
 											$objectId,
@@ -399,9 +399,9 @@ class Import
 											$endTime,
 											$key,
 											$value
-										), "\t", '"');
+										));
 									} else {
-										fputcsv($csvHandle, array(
+                                        $csvHandle->writeRow(array(
 											md5($accountId . $objectId . $metricRow['name'] . $metricRow['period'] . $endTime . $key),
 											$accountId,
 											$objectId,
@@ -410,9 +410,8 @@ class Import
 											$endTime,
 											$key,
 											$value
-										), "\t", '"');
+										));
 									}
-									fflush($csvHandle);
 
 								}
 							} else {
@@ -420,9 +419,8 @@ class Import
 								if (!$endTime && $metricRow['period'] == 'lifetime') {
 									$endTime = $this->defaultInsightsDate;
 								}
-								$writeStart = microtime(true);
 								if ($lifetime) {
-									fputcsv($csvHandle, array(
+                                    $csvHandle->writeRow(array(
 										md5($accountId . $objectId . $metricRow['name'] . $endTime),
 										$accountId,
 										$objectId,
@@ -430,9 +428,9 @@ class Import
 										$endTime,
 										'',
 										$metricRowValue['value']
-									), "\t", '"');
+									));
 								} else {
-									fputcsv($csvHandle, array(
+                                    $csvHandle->writeRow(array(
 										md5($accountId . $objectId . $metricRow['name'] . $metricRow['period'] . $endTime),
 										$accountId,
 										$objectId,
@@ -441,9 +439,8 @@ class Import
 										$endTime,
 										'',
 										$metricRowValue['value']
-									), "\t", '"');
+									));
 								}
-								fflush($csvHandle);
 
 							}
 						} else {
@@ -481,10 +478,10 @@ class Import
 	 * @param $compositePrimaryKey
 	 * @param $timestampColumn
 	 * @param $columnsToDownload
-	 * @param $csvHandle
+	 * @param CsvFile $csvHandle
 	 * @throws Exception
 	 */
-	private function _importList($accountId, $objectId, $url, $since, $until, $compositePrimaryKey, $timestampColumn, $columnsToDownload, $csvHandle)
+	private function _importList($accountId, $objectId, $url, $since, $until, $compositePrimaryKey, $timestampColumn, $columnsToDownload, CsvFile $csvHandle)
 	{
 		if (!$timestampColumn) {
 			$this->log(sprintf('Configuration query on row %d does not have timestamp column.', $this->currentConfigRowNumber), array(
@@ -516,7 +513,7 @@ class Import
 						if ($itemDate >= $dateTime->format('Y-m-d') && $itemDate <= $untilDateTime->format('Y-m-d')) {
 
 							$csvRow = $this->_createObjectRow($dataRow, $columnsToDownload, $accountId, $objectId, $compositePrimaryKey);
-							fputcsv($csvHandle, $csvRow, "\t", '"');
+                            $csvHandle->writeRow($csvRow);
 							$continue = true;
 						}
 					}
@@ -554,17 +551,17 @@ class Import
 	 * @param $url
 	 * @param $compositePrimaryKey
 	 * @param $columnsToDownload
-	 * @param $csvHandle
+	 * @param CsvFile $csvHandle
 	 * @throws Exception
 	 */
-	private function _importPaginated($accountId, $objectId, $url, $compositePrimaryKey, $columnsToDownload, $csvHandle)
+	private function _importPaginated($accountId, $objectId, $url, $compositePrimaryKey, $columnsToDownload, CsvFile $csvHandle)
 	{
 		try {
 			$response = $this->_fbApiPaginatedCall($url);
 			if (is_array($response)) {
 				foreach ($response as $dataRow) {
 					$csvRow = $this->_createObjectRow($dataRow, $columnsToDownload, $accountId, $objectId, $compositePrimaryKey);
-					fputcsv($csvHandle, $csvRow, "\t", '"');
+                    $csvHandle->writeRow($csvRow);
 				}
 			} else {
 				$this->log('Wrong response from API', array(
@@ -589,16 +586,16 @@ class Import
 	 * @param $url
 	 * @param $compositePrimaryKey
 	 * @param $columnsToDownload
-	 * @param $csvHandle
+	 * @param CsvFile $csvHandle
 	 */
-	private function _importObject($accountId, $objectId, $url, $compositePrimaryKey, $columnsToDownload, $csvHandle)
+	private function _importObject($accountId, $objectId, $url, $compositePrimaryKey, $columnsToDownload, CsvFile $csvHandle)
 	{
 		try {
 			$response = $this->_fbApiCall($url, "object");
 
 			if ($response) {
 				$csvRow = $this->_createObjectRow($response, $columnsToDownload, $accountId, $objectId, $compositePrimaryKey);
-				fputcsv($csvHandle, $csvRow, "\t", '"');
+                $csvHandle->writeRow($csvRow);
 
 			} else {
 				$this->log('No response from API', array(
@@ -621,16 +618,16 @@ class Import
 	 * @param $objectId
 	 * @param $url
 	 * @param $columnsToDownload
-	 * @param $csvHandle
+	 * @param CsvFile $csvHandle
 	 */
-	private function _importValue($accountId, $objectId, $url, $compositePrimaryKey, $columnsToDownload, $csvHandle)
+	private function _importValue($accountId, $objectId, $url, $compositePrimaryKey, $columnsToDownload, CsvFile $csvHandle)
 	{
 		try {
 			$response = $this->_fbApiCall($url, "value");
 
 			if ($response) {
 				$csvRow = $this->_createObjectRow($response, $columnsToDownload, $accountId, $objectId, $compositePrimaryKey);
-				fputcsv($csvHandle, $csvRow, "\t", '"');
+                $csvHandle->writeRow($csvRow);
 			} else {
 				$this->log('No response from API', array(
 					'account' => $accountId,
@@ -764,7 +761,17 @@ class Import
 		return $result;
 	}
 
-	private function _parseQuery($account, $query, $since, $until, $csvHandle)
+    /**
+     * @param $account
+     * @param $query
+     * @param $since
+     * @param $until
+     * @param CsvFile $csvHandle
+     * @throws InvalidTokenException
+     * @throws \Exception
+     * @throws \Zend_Uri_Exception
+     */
+	private function _parseQuery($account, $query, $since, $until, CsvFile $csvHandle)
 	{
 		$parseQueryTime = microtime(true);
 
@@ -1117,18 +1124,18 @@ class Import
 			// Create csv file for data
 			$csvFileName = sprintf('%s/%d-%s.csv', $this->tmpDir, $queryNumber, uniqid());
 
-			$csvHandle = fopen($csvFileName, 'w');
+			$csvHandle = new CsvFile($csvFileName);
 			// Add csv header
 			if (in_array($query->type, array('insights', 'insightsPages'))) {
-				fputcsv($csvHandle, array('ex__primary', 'ex__account', 'ex__object', 'metric', 'period', 'end_time', 'key', 'value'), "\t", '"');
+                $csvHandle->writeRow(array('ex__primary', 'ex__account', 'ex__object', 'metric', 'period', 'end_time', 'key', 'value'));
 			} elseif (in_array($query->type, array('insightsLifetime', 'insightsPosts'))) {
-				fputcsv($csvHandle, array('ex__primary', 'ex__account', 'ex__object', 'metric', 'end_time', 'key', 'value'), "\t", '"');
+                $csvHandle->writeRow(array('ex__primary', 'ex__account', 'ex__object', 'metric', 'end_time', 'key', 'value'));
 			} elseif (in_array($query->type, array('insights_pivoted','insightsLifetime_pivoted', 'insightsPages_pivoted','insightsPosts_pivoted'))) {
 				$columns = array('ex__primary', 'ex__account', 'ex__object', 'end_time');
 				foreach($columnsToDownload as $column) {
 					$columns[] = $column["column"];
 				}
-				fputcsv($csvHandle, $columns, "\t", '"');
+                $csvHandle->writeRow($columns);
 			} else {
 				if ($query->type == "value") {
 					if (in_array("#timestamp", $columnsToDownload)) {
@@ -1141,7 +1148,7 @@ class Import
 					$columnsToDownload = array_unique($columnsToDownload);
 				}
 				$columnNames = $this->_columnsNames($columnsToDownload);
-				fputcsv($csvHandle, $columnNames, "\t", '"');
+                $csvHandle->writeRow($columnNames);
 			}
 			$csvFile = array(
 				"fileName" => $csvFileName,
@@ -1168,39 +1175,31 @@ class Import
 			return false;
 		}
 		$csvHandle = $this->_csvFiles[$queryNumber]["handle"];
-		$csvFileName = $this->_csvFiles[$queryNumber]["fileName"];
-		fclose($csvHandle);
-		$start = microtime(true);
-		exec("gzip \"$csvFileName\" --fast");
-		$csvFileName .= ".gz";
-		$start = microtime(true);
-		if (file_exists($csvFileName)) {
-			$tableId = $this->storageApiBucket . '.' . $table;
-			if (!isset($this->_sapiTableCache[$tableId]) && $this->storageApi->tableExists($tableId)) {
-				$this->_sapiTableCache[$tableId] = $this->storageApi->getTable($tableId);
-			}
-			try {
-				if (isset($this->_sapiTableCache[$tableId])) {
-					$this->storageApi->writeTableAsync(
-						$tableId,
-						new \Keboola\Csv\CsvFile($csvFileName, "\t", '"', "\\"),
-						array(
-							"incremental" => true
-						));
-				} else {
-					$this->storageApi->createTableAsync(
-						$this->storageApiBucket,
-						$table,
-						new \Keboola\Csv\CsvFile($csvFileName, "\t", '"', "\\"),
-						array(
-							"primaryKey" => "ex__primary"
-						));
-					$this->_sapiTableCache[$tableId] = $this->storageApi->getTable($tableId);
-				}
-			} catch (Exception $e) {
-				throw new UserException($e->getMessage(), $e);
-			}
-		}
+        $tableId = $this->storageApiBucket . '.' . $table;
+        if (!isset($this->_sapiTableCache[$tableId]) && $this->storageApi->tableExists($tableId)) {
+            $this->_sapiTableCache[$tableId] = $this->storageApi->getTable($tableId);
+        }
+        try {
+            if (isset($this->_sapiTableCache[$tableId])) {
+                $this->storageApi->writeTableAsync(
+                    $tableId,
+                    $csvHandle,
+                    array(
+                        "incremental" => true
+                    ));
+            } else {
+                $this->storageApi->createTableAsync(
+                    $this->storageApiBucket,
+                    $table,
+                    $csvHandle,
+                    array(
+                        "primaryKey" => "ex__primary"
+                    ));
+                $this->_sapiTableCache[$tableId] = $this->storageApi->getTable($tableId);
+            }
+        } catch (Exception $e) {
+            throw new UserException($e->getMessage(), $e);
+        }
 		return true;
 	}
 
