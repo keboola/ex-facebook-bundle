@@ -84,7 +84,7 @@ class Api
 	/**
 	 * Url for authorization
 	 */
-	const AUTH_URL = 'https://www.facebook.com/dialog/oauth?client_id=%s&scope=read_insights,read_stream,email,manage_pages&redirect_uri=%s&state=%s';
+	const AUTH_URL = 'https://www.facebook.com/dialog/oauth?client_id=%s&scope=read_insights,email,manage_pages&redirect_uri=%s&state=%s';
 
 	/**
 	 * @var \Keboola\Log\Log
