@@ -1113,13 +1113,16 @@ class Import
 						$columnsToDownload = \Zend_Json::decode($query->columns);
 					} catch(\Exception $e) {
 						throw new UserException("Can't decode column mapping for insightsPages_pivoted or insightsPosts_pivoted.");
-
 					}
 				}
 			} else {
 				// Find out which values to download
 				$columnsToDownload = explode(',', $query->columns);
 			}
+
+            if (!$columnsToDownload) {
+                throw new UserException("No defined columns to download.");
+            }
 
 			// Create csv file for data
 			$csvFileName = sprintf('%s/%d-%s.csv', $this->tmpDir, $queryNumber, uniqid());
