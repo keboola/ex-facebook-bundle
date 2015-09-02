@@ -1111,6 +1111,9 @@ class Import
 				if (in_array($query->type, array('insights_pivoted', 'insightsLifetime_pivoted', 'insightsPages_pivoted','insightsPosts_pivoted'))) {
 					try {
 						$columnsToDownload = \Zend_Json::decode($query->columns);
+                        if (!$columnsToDownload) {
+                            $columnsToDownload = array();
+                        }
 					} catch(\Exception $e) {
 						throw new UserException("Can't decode column mapping for insightsPages_pivoted or insightsPosts_pivoted.");
 					}
@@ -1119,10 +1122,6 @@ class Import
 				// Find out which values to download
 				$columnsToDownload = explode(',', $query->columns);
 			}
-
-            if (!$columnsToDownload) {
-                throw new UserException("No defined columns to download.");
-            }
 
 			// Create csv file for data
 			$csvFileName = sprintf('%s/%d-%s.csv', $this->tmpDir, $queryNumber, uniqid());
