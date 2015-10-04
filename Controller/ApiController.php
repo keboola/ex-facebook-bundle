@@ -2,6 +2,9 @@
 
 namespace Keboola\FacebookExtractorBundle\Controller;
 
+use Keboola\StorageApi\Components;
+use Symfony\Component\HttpFoundation\Request;
+
 class ApiController extends \Syrup\ComponentBundle\Controller\ApiController
 {
     /**
@@ -23,5 +26,12 @@ class ApiController extends \Syrup\ComponentBundle\Controller\ApiController
 
    	}
 
+    public function deleteConfigAction(Request $request)
+    {
+        $this->storageApi->dropTable('sys.c-ex-facebook.' . $request->get("configId"));
+	    return $this->createJsonResponse([
+            'status' => 'ok'
+	    ], 200);
+    }
 
 }
