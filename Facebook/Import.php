@@ -509,6 +509,9 @@ class Import
 
 					foreach ($response['data'] as $dataRow) {
 						// Check if we get data within wanted time frame
+                        if (!isset($dataRow[$timestampColumn])) {
+                            throw new UserException("Timestamp column '{$timestampColumn}' not found.");
+                        }
 						$itemDate = date('Y-m-d', strtotime($dataRow[$timestampColumn]));
 						if ($itemDate >= $dateTime->format('Y-m-d') && $itemDate <= $untilDateTime->format('Y-m-d')) {
 
