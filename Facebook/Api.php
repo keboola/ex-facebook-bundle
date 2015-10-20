@@ -361,7 +361,8 @@ class Api
 									if (
 										strstr($result['error']['message'], 'Session has expired') || // Token expired
 										strstr($result['error']['message'], 'The session has been invalidated') || // User changed password
-										strstr($result['error']['message'], 'Session does not match current stored session.') // User probably changed password
+										strstr($result['error']['message'], 'Session does not match current stored session.') || // User probably changed password
+                                        strstr($result['error']['message'], 'This authorization code has expired.') // Auth code expired
 									) {
 
 										// Permanent token problem
