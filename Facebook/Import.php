@@ -317,8 +317,10 @@ class Import
 				$value = 0;
 				foreach($data["data"] as $metric) {
 					if ($metric["name"] == $oneMapping["name"] && $metric["period"] == $oneMapping["period"]) {
-						if (isset($oneMapping["key"]) && isset($metric["values"][0]["value"][$oneMapping["key"]])) {
-							$value = intval($metric["values"][0]["value"][$oneMapping["key"]]);
+						if (isset($oneMapping["key"])) {
+                            if (isset($metric["values"][0]["value"][$oneMapping["key"]])) {
+                                $value = intval($metric["values"][0]["value"][$oneMapping["key"]]);
+                            }
 						} else {
 							$value = intval($metric["values"][0]["value"]);
 						}
