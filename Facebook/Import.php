@@ -181,6 +181,7 @@ class Import
 		$dateTime = new \DateTime($since, new \DateTimeZone(self::$TIME_ZONE));
 		$untilDateTime = new \DateTime($until, new \DateTimeZone(self::$TIME_ZONE));
 
+        // Reset to the whole day
 		$dateTime->setTime(0,0,0);
 		$untilDateTime->setTime(0,0,0);
 		$untilDateTime->add(\DateInterval::createFromDateString('1 day'));
@@ -216,13 +217,11 @@ class Import
 	 */
 	private function _importInsightsPagesPivoted($accountId, $objectId, $url, $since, $until, $mapping, CsvFile $csvHandle)
 	{
-
 		if ($until == 'today') {
 			$until = 'yesterday';
 		}
 
 		// Iterate day by day
-
 		$dateTime = new \DateTime($since, new \DateTimeZone(self::$TIME_ZONE));
 		$untilDateTime = new \DateTime($until, new \DateTimeZone(self::$TIME_ZONE));
 
@@ -309,7 +308,6 @@ class Import
 	 */
 	private function _extractInsightsData($accountId, $objectId, $data, $mapping, $endTime, CsvFile $csvHandle)
 	{
-		$start = microtime(true);
 		if (isset($data['data']) && is_array($data['data'])) {
 			$columns = array();
 			foreach ($mapping as $oneMapping) {
@@ -329,8 +327,6 @@ class Import
 				$columns[$oneMapping["column"]] = $value;
 			}
 
-			$writeStart = microtime(true);
-
 			$output = array(
 					md5($accountId . $objectId . $endTime),
 					$accountId,
@@ -340,11 +336,7 @@ class Import
 			foreach($columns as $key => $value) {
 				$output[$key] = $value;
 			}
-
             $csvHandle->writeRow($output);
-
-			if (microtime(true) - $writeStart > 0.1) {
-			}
 		} else {
 			$this->log('Wrong response from Insights API', array(
 				'account' => $accountId,
@@ -379,7 +371,6 @@ class Import
 									if (!$endTime && $metricRow['period'] == 'lifetime') {
 										$endTime = $this->defaultInsightsDate;
 									}
-									$writeStart = microtime(true);
 
 									// fix for metric post_impressions_histogram, where array is in value
 									if (is_array($value)) {

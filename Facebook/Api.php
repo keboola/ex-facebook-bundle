@@ -115,51 +115,6 @@ class Api
 	}
 
 	/**
-	 *
-	 * CURL GET request, may be written to a file
-	 *
-	 * @param string $url
-	 * @throws ClientException
-	 * @throws Exception
-	 * @throws \Exception|ClientException
-	 * @return bool|mixed|string
-	 */
-	protected function _curlGet($url)
-	{
-
-		$headers = array();
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HEADER, false);
-		curl_setopt($ch, CURL_HTTP_VERSION_1_1, true);
-		curl_setopt($ch, CURLOPT_HTTPGET, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
-		curl_setopt($ch, CURLOPT_USERAGENT, "Keboola Facebook Extractor");
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(array(
-			"Connection: close"
-		), $headers));
-		curl_setopt($ch, CURLOPT_URL, $url);
-
-		$result = curl_exec($ch);
-		$curlError = curl_error($ch);
-		$curlErrNo = curl_errno($ch);
-		curl_close($ch);
-
-		if ($curlErrNo) {
-			throw new CurlException("CURL: " . $curlErrNo . " - " . $curlError, $curlErrNo);
-		}
-
-		if (!$result) {
-			throw new CurlException("CURL: no result, error: " . $curlError, $curlErrNo);
-		}
-
-		return $result;
-	}
-
-	/**
 	 * Makes general call
 	 * @param string $url Url path without boundary slashes
 	 * @throws ApiErrorException
@@ -179,9 +134,6 @@ class Api
 			$apiError = FALSE;
 
 			try {
-				// CURL off for now
-				// $rawResult = $this->_curlGet($url);
-
 				$this->_httpClient->setUri($url);
 				$response = $this->_httpClient->request();
 				$rawResult = $response->getBody();
