@@ -155,7 +155,8 @@ class Api
 									strstr($result['error']['message'], 'The session has been invalidated') || // User changed password
 									strstr($result['error']['message'], 'Session does not match current stored session.') || // User probably changed password
 									strstr($result['error']['message'], 'has not authorized application') || // User is not admin of the account
-									strstr($result['error']['message'], 'was migrated to page ID') // Page migrated to other ID
+									strstr($result['error']['message'], 'was migrated to page ID') || // Page migrated to other ID
+									strstr($result['error']['message'], 'This authorization code has expired.') // code token
 								) {
 									// Permanent token problem
 									throw (new InvalidTokenException($result['error']['message']))->setData($result);
@@ -163,6 +164,7 @@ class Api
 									strstr($result['error']['message'], 'retry your request later') ||
 									strstr($result['error']['message'], 'TSocket: Could not read') ||
 									strstr($result['error']['message'], 'An unknown error has occurred')
+
 								) {
 									//"An unexpected error has occured. Please retry your request later."
 									$apiError = TRUE;
