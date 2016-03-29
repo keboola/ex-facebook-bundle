@@ -4,6 +4,7 @@ namespace Keboola\FacebookExtractorBundle\Job;
 
 use Keboola\FacebookExtractorBundle\Facebook\Import;
 use Keboola\FacebookExtractorBundle\Facebook\InvalidTokenException;
+use Keboola\StorageApi\Config\Exception;
 use Monolog\Logger;
 use Monolog\Registry;
 use Syrup\ComponentBundle\Exception\ApplicationException;
@@ -40,7 +41,11 @@ class Executor extends BaseExecutor
     {
         \Keboola\StorageApi\Config\Reader::$client = $this->storageApi;
 
-        $configBucket = \Keboola\StorageApi\Config\Reader::read("sys.c-{$this->appName}", $this->storageApi->token);
+        try {
+            $configBucket = \Keboola\StorageApi\Config\Reader::read("sys.c-{$this->appName}", $this->storageApi->token);
+        } catch (Exception $e) {
+            throw new UserException($e->getMessage());
+        }
         $passed = false;
 
         $accountsIds = array();

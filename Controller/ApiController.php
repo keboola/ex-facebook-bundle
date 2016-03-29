@@ -2,6 +2,7 @@
 
 namespace Keboola\FacebookExtractorBundle\Controller;
 
+use Keboola\StorageApi\ClientException;
 use Keboola\StorageApi\Components;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -28,7 +29,14 @@ class ApiController extends \Syrup\ComponentBundle\Controller\ApiController
 
     public function deleteConfigAction(Request $request)
     {
-        $this->storageApi->dropTable('sys.c-ex-facebook.' . $request->get("configId"));
+        try {
+            $this->storageApi->dropTable('sys.c-ex-facebook.' . $request->get("configId"));
+        } catch (ClientException $e) {
+            return $this->createJsonResponse([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], $e->getStringCode() >= 400 && $e->getStringCode() < 500 ? $e->getStringCode() : 400);
+        }
 	    return $this->createJsonResponse([
             'status' => 'ok'
 	    ], 200);
