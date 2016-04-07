@@ -322,7 +322,11 @@ class Import
                                 $value = intval($metric["values"][0]["value"][$oneMapping["key"]]);
                             }
 						} else {
-							$value = intval($metric["values"][0]["value"]);
+							if (isset($metric["values"][0]["value"])) {
+								$value = intval($metric["values"][0]["value"]);
+							} else {
+								$value = 0;
+							}
 						}
 					}
 				}
