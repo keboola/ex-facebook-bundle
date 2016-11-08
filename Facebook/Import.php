@@ -794,9 +794,11 @@ class Import
 		$columnsToDownload = array();
 		if (in_array($query->type, array('insights', 'insightsLifetime', 'insightsPages', 'insightsPosts'))) {
 			// Check if Insights type contains right url
-			if (strpos($parsedQuery, '/insights') === FALSE) {
-				throw new UserException(sprintf('Configuration query on row %d is not valid. Insights query needs
-					to have format {objectId}/insights.', $this->currentConfigRowNumber));
+			if (strpos($parsedQuery, '/insights') === FALSE
+				&& strpos($parsedQuery, '/video_insights') === FALSE) {
+				$notAllowedEndpointMessage = 'Configuration query on row %d is not valid. '
+					. 'Insights query needs to have format {objectId}/insights or {objectId}/video_insights.';
+				throw new UserException(sprintf($notAllowedEndpointMessage, $this->currentConfigRowNumber));
 			}
 		} else {
 			if (in_array($query->type, array('insights_pivoted', 'insightsLifetime_pivoted', 'insightsPages_pivoted', 'insightsPosts_pivoted'))) {
@@ -965,7 +967,7 @@ class Import
 							switch ($query->type) {
 								case 'insights':
 								case 'insightsPages':
-									$this->_importInsightspages($account['id'], $objectId, $url, $since, $until, $csvHandle);
+									$this->_importInsightsPages($account['id'], $objectId, $url, $since, $until, $csvHandle);
 									break;
 								case 'insights_pivoted':
 								case 'insightsPages_pivoted':
