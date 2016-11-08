@@ -967,7 +967,7 @@ class Import
 							switch ($query->type) {
 								case 'insights':
 								case 'insightsPages':
-									$this->_importInsightspages($account['id'], $objectId, $url, $since, $until, $csvHandle);
+									$this->_importInsightsPages($account['id'], $objectId, $url, $since, $until, $csvHandle);
 									break;
 								case 'insights_pivoted':
 								case 'insightsPages_pivoted':
