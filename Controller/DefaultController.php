@@ -16,7 +16,7 @@ class DefaultController extends Controller
     {
         $content = '';
 
-        $callbackUrl = $this->getRequest()->getScheme() . '://' . $this->getRequest()->getHttpHost() . $this->getRequest()->getPathInfo();
+        $callbackUrl = 'https://' . $this->getRequest()->getHttpHost() . $this->getRequest()->getPathInfo();
         $session = $this->getRequest()->getSession();
 
         if (!$this->getRequest()->get('code')) {
